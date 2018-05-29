@@ -16,3 +16,4 @@ GUTTER - If a toss dislodges 0 pins
 PERFECT SCORE - 300, If all 12 assigned tosses lead to STRIKE
 
 
+
