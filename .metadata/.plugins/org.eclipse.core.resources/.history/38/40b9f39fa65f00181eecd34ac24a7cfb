@@ -1,0 +1,14 @@
+package sap;
+
+public class Round {
+	private int roundNumber;
+	public Round(int tossScoreOne) {
+		this.tossScoreOne = tossScoreOne;
+	}
+	public Round(int tossScoreOne, int tossScoreTwo) {
+		
+	}
+	public Round(int tossScoreOne, int tossScoreTwo, int tossScoreThree) {
+		
+	}
+}

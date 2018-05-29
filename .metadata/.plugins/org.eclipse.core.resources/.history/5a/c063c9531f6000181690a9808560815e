@@ -1,0 +1,15 @@
+package sap;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class Constants {
+	
+	public static final char ZERO = '-';
+	public static final char TEN = 10;
+	public static Map<Character, Integer> charIntMap = new HashMap<Character, Integer>();
+	
+	public static Map<Character, Integer> getCharintmap() {
+		return charIntMap;
+	}
+}

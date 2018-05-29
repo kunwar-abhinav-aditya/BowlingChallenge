@@ -1,0 +1,368 @@
+/*
+ * This is an implementation of a 10-pin bowling game
+ * A user can virtually navigate and play a game of bowling (or more!)
+ */
+package sap;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Scanner;
+
+public class BowlingGame {
+
+	static int roundNumber;
+	static int gameScore;
+	static int gameCount;
+	static Map<Integer, String> intCharMap= new HashMap<Integer, String>();
+	static ArrayList<ArrayList<Toss>> totalRounds = new ArrayList<ArrayList<Toss>>();
+	static List<Integer> tosses = new ArrayList<Integer>();
+	static Scanner scanner;
+	
+	public static void main(String[] args) {
+		scanner = new Scanner(System.in);
+		System.out.println("\t\t\t\tWelcome to BRB  - Boredom Removal Bowling!!\n\t\t\t\tThis is the ultimate time-killer for your boring times."
+				+ "\n\t\t\t\tThe game is enter-key based so you can just navigate through and play this game by hitting"
+				+ "\n\t\t\t\tthe enter key button. Simple, isn't it? So go ahead and enjoy!\n");
+		System.out.println("___________________________________________________________________________________________________");
+		System.out.println("ENTER YOUR NAME: ");
+		String playerName = scanner.nextLine();
+		System.out.println("Click Enter to start a new game!!");
+		String readConsent = scanner.nextLine();
+		if (readConsent.equals("")) {
+			do {
+				HashMap<Integer, ArrayList<Integer>> roundTossMap = generateRandomGame();
+				playBowling(roundTossMap, scanner, playerName);			
+			} while(playAgain());	
+		}
+	}
+	
+	/**
+	 * Method to check whether user wants to play
+	 * @return
+	 */
+	private static boolean playAgain() {
+	    System.out.println("Fancy one more game? Press Enter if you say yes!");
+	    String replay = scanner.nextLine();
+	    if (!replay.equals("")) {
+	    	System.out.println("Bye Bye!! Drop by the next time you feel bored again");
+	    }
+	    return replay.equals("");
+	}
+	
+	/**
+	 * This method shows the current score-board, and is called after every toss.
+	 * First it checks whether the round for which the toss is played is a strike, if not then 
+	 * if it is a spare. It does so to update the score-board accordingly with /, - or X signs along-with
+	 * the numbers 1 to 9.
+	 * <p>
+	 * 'bonus' is the bonus earned in each round depending on whether that round was a Strike or a spare,
+	 * along-with the normal points scored for that round.
+	 * <p>
+	 * 'holdDisplay' holds the display of score for a Spare round till the next toss is played,
+	 * and of that a Strike round till the next two tosses are played. If the score for a round is on hold,
+	 * the scores for subsequent rounds will also be on hold, i.e. there would be no gap in the display of
+	 * round-specific scores at the bottom.
+	 * 
+	 * @param roundsTillNow
+	 */
+	private static void showScore(ArrayList<ArrayList<Toss>> roundsTillNow, String playerName) {
+		int roundScore = 0;
+		int updatePendingPosition = 11;
+		String status = "";
+		ArrayList<Integer> total = new ArrayList<Integer>();
+		System.out.println("\n");
+        System.out.println("\t\t\t\t             S C O R E B O A R D            ");
+        System.out.println("\t\t\t\t             Player Name: "+playerName);
+        System.out.println("\t\t\t\t                  Game: "+gameCount);
+        System.out.println("\t\t\t\t____________________________________________");
+		System.out.print("\nROUND\t\t1\t2\t3\t4\t5\t6\t7\t8\t9\t10");
+		System.out.print("\nPOINTS\t\t");
+		for (int init = 0; init < roundsTillNow.size(); init++) {
+			int bonus = 0;
+			int roundSum = 0;
+			boolean holdDisplay = true;
+			for (Toss toss : roundsTillNow.get(init)) {
+				roundSum += toss.getTossScore();
+			}
+			// Check if the round is a Strike
+			if(isStrike(roundsTillNow.get(init))) {
+				if (init == roundsTillNow.size() - 1) {
+					status = "ST";
+				}
+				if (init < 9) {
+					System.out.print(intCharMap.get(10)+"\t");
+					//If at least one more round has been played after this round
+					if (init < roundsTillNow.size()-1) {
+						if (roundsTillNow.get(init+1).size() >= 2) {
+							int tossNum = 0;
+							holdDisplay = false;
+							for (Toss toss : roundsTillNow.get(init+1)) {
+								tossNum ++;
+								if (tossNum <= 2)
+								bonus = bonus + toss.getTossScore();
+							}
+						}
+						else {
+							if (init < roundsTillNow.size()-2) {
+								holdDisplay = false;
+								bonus = roundsTillNow.get(init+1).get(0).getTossScore() + roundsTillNow.get(init+2).get(0).getTossScore();
+							}
+						}
+					}
+				} else {
+					if (roundsTillNow.get(init).size() >= 2) {
+						holdDisplay = false;
+					}
+					System.out.print(intCharMap.get(roundsTillNow.get(init).get(0).getTossScore()));
+					if (roundsTillNow.get(init).size() == 2) {
+						System.out.print("|" + intCharMap.get(roundsTillNow.get(init).get(1).getTossScore()));
+					}
+					if (roundsTillNow.get(init).size() == 3) {
+						System.out.print("|" + intCharMap.get(roundsTillNow.get(init).get(1).getTossScore()) + "|" + intCharMap.get(roundsTillNow.get(init).get(2).getTossScore()));
+					}
+				}
+				if (holdDisplay) {
+					updatePendingPosition = init;
+				}
+			}
+			// Check if the round is Spare
+			else if(isSpare(roundsTillNow.get(init))) {
+				if (init == roundsTillNow.size() - 1) {
+					status = "SP";
+				}
+				if (init < 9) {
+					System.out.print(intCharMap.get(roundsTillNow.get(init).get(0).getTossScore())+"|"+"/\t");
+					if (init < roundsTillNow.size()-1) {
+						holdDisplay = false;
+						bonus = roundsTillNow.get(init+1).get(0).getTossScore();
+					}
+				} else {
+					holdDisplay = false;
+					System.out.print(intCharMap.get(roundsTillNow.get(init).get(0).getTossScore()));
+					if (roundsTillNow.get(init).size() == 2)
+						System.out.print("|" + "/");
+					if (roundsTillNow.get(init).size() == 3)
+						System.out.print("|" + "/" + "|" + intCharMap.get(roundsTillNow.get(init).get(2).getTossScore()));	
+				}
+				
+			} else {
+				if (init < updatePendingPosition && roundsTillNow.get(init).size() == 2) {
+					holdDisplay = false;
+				}
+				System.out.print(intCharMap.get(roundsTillNow.get(init).get(0).getTossScore()));
+				if (roundsTillNow.get(init).size() == 2)
+					System.out.print("|" + intCharMap.get(roundsTillNow.get(init).get(1).getTossScore()) + "\t");
+			}
+			if (!holdDisplay) {
+				roundScore += roundSum + bonus;
+				total.add(roundScore);
+			}
+		}
+		System.out.print("\n\nTOTAL\t\t");
+		for (int entry : total) {
+			System.out.print(entry+"\t");
+		}
+		if (status == "ST") {
+			System.out.println("\n\nYay!! You hit a Strike.");
+			status = "";
+		}
+		if (status == "SP") {
+			System.out.println("\n\nCool! That's a Spare!!");
+			status = "";
+		}
+		System.out.println("");
+		if (total.size() >= 1)
+			gameScore = total.get(total.size()-1);
+	}
+
+	
+	/**
+	 * This method resets the values of total rounds, tosses played, current round number
+	 * and total game score for each new Game.
+	 * <p>
+	 * intCharMap is used to map the scored value in a toss to characters to be displayed
+	 * on the score-board.
+	 */
+	private static void resetValues() {
+		totalRounds.clear();
+		tosses.clear();
+		roundNumber = 0;
+		gameScore = 0;
+		intCharMap.put(0, "-");
+		intCharMap.put(1, "1");
+		intCharMap.put(2, "2");
+		intCharMap.put(3, "3");
+		intCharMap.put(4, "4");
+		intCharMap.put(5, "5");
+		intCharMap.put(6, "6");
+		intCharMap.put(7, "7");
+		intCharMap.put(8, "8");
+		intCharMap.put(9, "9");
+		intCharMap.put(10, "X");
+	}
+	
+	/**
+	 * This method takes a round input, removes and re-adds the tosses and then calls the
+	 * 'showScore' method. This deletion and re-insertion is necessary because after each toss,
+	 * there will be duplicates of a toss in the totalRounds method with one toss appearing more
+	 * than once because this round would already be added with its previous tosses in the 'totalRounds' list.
+	 * Although there might be other ways of achieving this, this is the route I took.
+	 * 
+	 * @param round
+	 */
+	private static void displayCurrent(Round round, String playerName) {
+		if (totalRounds.contains(round.getTosses()))
+			totalRounds.remove(round.getTosses());
+		totalRounds.add(round.getTosses());
+		showScore(totalRounds, playerName);	
+	}
+	
+	/**
+	 * Checks whether the given round has resulted in a Strike
+	 * 
+	 * @param round an ArrayList of tosses in the round
+	 * @return result a boolean value indicating whether the round was a Strike or not
+	 */
+	private static boolean isStrike(ArrayList<Toss> round) {
+		boolean result = false;
+		if (round.get(0).getTossScore() == 10) {
+				result =  true;
+		}
+		return result;
+	}
+	
+	/**
+	 * Checks whether the given round has resulted in a Spare
+	 * 
+	 * @param round an ArrayList of tosses in the round
+	 * @return result a boolean value indicating whether the round was a Spare or not
+	 */
+	private static boolean isSpare(ArrayList<Toss> round) {
+		boolean result = false;
+		if (round.size() >= 2) {
+			if (round.get(0).getTossScore() != 10 && (round.get(0).getTossScore() + round.get(1).getTossScore() == 10)) {
+				result =  true;
+			}
+		}
+		return result;
+	}
+	
+   /**
+    * This method generates a bowling game of 10 rounds with random values in tosses, complying
+    * with the rules of a standard 10-pin bowling game
+    * 
+    * @return roundTossMap a map with round numbers as keys and an ArrayList of toss scores for each round
+    * as corresponding values.
+    */
+	public static HashMap<Integer, ArrayList<Integer>> generateRandomGame() {
+		HashMap<Integer, ArrayList<Integer>> roundTossMap = new HashMap<Integer, ArrayList<Integer>>();
+		for (int i = 1; i <= 10; i ++) {
+			ArrayList<Integer> tossSet = generateRandomList(i);
+			roundTossMap.put(i, tossSet);
+		}
+		return roundTossMap;
+	}
+	
+	/**
+	 * For a given round number, this method generates a random list
+	 * of tosses. If the round number is less than 10, this method generates 
+	 * a list of at max 2 tosses depending on whether the first toss resulted
+	 * in a Strike or not. If the round number is 10, it generates a list of 3 tosses,
+	 * if, either the first toss resulted in a Strike or the first two tosses
+	 * resulted in a Spare. Otherwise, it generates a list of 2 tosses.
+	 * 
+	 * @param roundNum the number denoting which round is being played
+	 * @return tosses an ArrayList of tosses for the given round
+	 */
+	private static ArrayList<Integer> generateRandomList(Integer roundNum) {
+		ArrayList<Integer> tosses = new ArrayList<Integer>();
+		Random rand = new Random();
+		tosses.add(rand.nextInt(11));
+		if (tosses.get(0) < 10)
+			tosses.add(rand.nextInt(11 - tosses.get(0)));
+		if (roundNum == 10) {
+			if (tosses.get(0) == 10) {
+				tosses.add(rand.nextInt(11));		
+				tosses.add(rand.nextInt(11));
+			} else if (tosses.get(0) + tosses.get(1) == 10) {		
+				tosses.add(rand.nextInt(11));
+			}
+		}
+		return tosses;
+	}
+	
+	/**
+	 * This method enables a user to play a game of bowling wherein ten rounds are played
+	 * and in an enter-key based navigation
+	 *  
+	 * @param  a map with round numbers as keys and an ArrayList of toss scores for each round
+     * as corresponding values.
+	 * @return gameScore the total score earned for the game
+	 */
+	public static int playBowling (HashMap<Integer, ArrayList<Integer>> roundTossMap, Scanner scanner, String playerName) {
+		gameCount++;
+		int strikeCount = 0;
+		boolean strikeSequence = false;
+		resetValues();
+		System.out.println("\n\nYou have 10 rounds in total. The first toss is here. Enjoy.");
+		for (int round = 1; round <= 10; round++) {
+			Round roundInstance = new Round();
+			for (Integer tossValue : roundTossMap.get(round)) {
+				String readConsent = scanner.nextLine();
+				if (readConsent.equals("")) {
+					roundInstance.getTosses().add(new Toss(tossValue));
+					displayCurrent(roundInstance, playerName);
+					if (tossValue == 0) {
+						System.out.println("\n\nOh No!! That's a Gutter!");
+					}
+					if (tossValue == 10) {
+						strikeSequence = true;
+						strikeCount += 1;
+						switch(strikeCount) {
+							case(2):
+								System.out.println("That's a Double!!");
+								break;
+							case(3):
+								System.out.println("That's a Turkey!!");
+								break;
+							case(4):
+								System.out.println("That's a Square Ball!!");
+								break;
+							case(5):
+								System.out.println("That's a High Five!!");
+								break;
+							case(6):
+								System.out.println("That's a Six Pack!!");
+								break;
+							case(7):
+								System.out.println("That's a Lucky Seven!!");
+								break;
+							case(8):
+								System.out.println("That's a Octopus!!");
+								break;
+							case(9):
+								System.out.println("That's a Golden Turkey!!");
+								break;
+							case(10):
+								System.out.println("That's a Dime Bag!!");
+								break;
+							case(11):
+								System.out.println("That's a Aces Up!!");
+								break;
+							case(12):
+								System.out.println("That's a Dirty Dozen!! YEAH. That's a mighty perfect game!! CONGRATS!!");
+								break;
+						}
+					} else {
+						strikeSequence = false;
+					}
+				}
+			}
+		}	
+		System.out.println("Your game is finished now.\nYou scored "+gameScore+" points");
+		return gameScore;
+	}
+}

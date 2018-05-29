@@ -1,0 +1,19 @@
+/**
+ * The class denoting a full game of bowling
+ */
+package sap;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class Game {
+	private HashMap<Integer, ArrayList<Integer>> roundTossMap;
+
+	public HashMap<Integer, ArrayList<Integer>> getRoundTossMap() {
+		return roundTossMap;
+	}
+
+	public void setRoundTossMap(HashMap<Integer, ArrayList<Integer>> roundTossMap) {
+		this.roundTossMap = roundTossMap;
+	}
+}

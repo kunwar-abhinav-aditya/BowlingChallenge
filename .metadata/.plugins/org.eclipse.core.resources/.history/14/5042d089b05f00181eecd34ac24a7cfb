@@ -1,0 +1,29 @@
+package sap;
+
+import java.util.Random;
+import java.util.Scanner;
+
+public class Toss {
+	
+	private int tossScore;
+	
+	public int getTossScore() {
+		return tossScore;
+	}
+
+	public Toss(int limit) {
+		this.tossScore = tossScore(limit);
+	}
+	
+	private int tossScore(int limit) {
+		int tossScore = 0;
+		Scanner scanner = new Scanner(System.in);
+		String readString = scanner.nextLine();
+		if (readString.equals("")) {
+			Random rand = new Random();
+			tossScore = rand.nextInt(limit);		
+		}
+		scanner.close();
+		return tossScore;
+	}
+}

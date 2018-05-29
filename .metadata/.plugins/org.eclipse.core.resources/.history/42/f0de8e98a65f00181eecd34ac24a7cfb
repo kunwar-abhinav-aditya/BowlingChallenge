@@ -1,0 +1,22 @@
+package sap;
+
+import java.util.Random;
+import java.util.Scanner;
+
+public class Toss {
+	public int tossScore(int limit, int tosses) {
+		int tossScore = 0;
+		Scanner scanner = new Scanner(System.in);
+		String readString = scanner.nextLine();
+		if (readString.equals("")) {
+			Random rand = new Random();
+			tossScore = rand.nextInt(limit);
+			System.out.println("Score: "+tossScore);
+			if (tossScore == 0) {
+				System.out.println("That's a GUTTER!!");
+			}			
+		}
+		scanner.close();
+		return tossScore();
+	}
+}

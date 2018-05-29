@@ -1,0 +1,9 @@
+package sap;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class Constants {
+	
+	public static Map<Character, Integer> charIntMap = new HashMap<Character, Integer>();
+}

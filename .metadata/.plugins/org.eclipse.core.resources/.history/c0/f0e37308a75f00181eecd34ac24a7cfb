@@ -1,0 +1,12 @@
+package sap;
+
+public class Round {
+	private Toss toss;
+	public Round() {
+		
+	}
+	public Round() {
+		
+	}
+	
+}

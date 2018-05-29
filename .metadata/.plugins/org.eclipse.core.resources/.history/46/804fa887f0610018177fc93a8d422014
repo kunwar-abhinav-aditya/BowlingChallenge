@@ -1,0 +1,13 @@
+package sap;
+
+public class Game {
+	private Round[] rounds;
+
+	public Round[] getRounds() {
+		return rounds;
+	}
+
+	public void setRounds(Round[] rounds) {
+		this.rounds = rounds;
+	}
+}

@@ -1,0 +1,8 @@
+package sap;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class Game {
+	private HashMap<Integer, ArrayList<Integer>> roundTossMap;
+}

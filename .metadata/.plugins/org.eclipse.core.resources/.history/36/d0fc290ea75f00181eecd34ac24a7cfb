@@ -1,0 +1,14 @@
+package sap;
+
+import java.util.ArrayList;
+
+public class Round {
+	private ArrayList<Toss> tosses;
+	public Round() {
+		
+	}
+	public Round() {
+		
+	}
+	
+}

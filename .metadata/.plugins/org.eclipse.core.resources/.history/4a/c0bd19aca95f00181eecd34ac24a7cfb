@@ -1,0 +1,12 @@
+package sap;
+
+import java.util.ArrayList;
+
+public class Round {
+	
+	private ArrayList<Toss> tosses;
+	public void setTosses(ArrayList<Toss> tosses) {
+		this.tosses = tosses;
+	}
+	
+}
